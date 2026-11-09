@@ -189,8 +189,215 @@ Examples:
 
 // ############# Add your code here #############
 
-// add your own #defines and functions here
-// (e.g. the PRESENT-80 decryption and the path planner)
+static uint8_t get_neighbors(uint8_t u, uint8_t *nbrs, uint8_t *weights) {
+    switch (u) {
+        case 1:
+            nbrs[0] = 5;  weights[0] = 5;
+            nbrs[1] = 4;  weights[1] = 15;
+            nbrs[2] = 6;  weights[2] = 15;
+            nbrs[3] = 36; weights[3] = 100;
+            return 4;
+        case 2:
+            nbrs[0] = 4;  weights[0] = 5;
+            return 1;
+        case 3:
+            nbrs[0] = 6;  weights[0] = 5;
+            return 1;
+        case 4:
+            nbrs[0] = 1;  weights[0] = 15;
+            nbrs[1] = 2;  weights[1] = 5;
+            nbrs[2] = 14; weights[2] = 15;
+            return 3;
+        case 5:
+            nbrs[0] = 1;  weights[0] = 5;
+            nbrs[1] = 7;  weights[1] = 11;
+            nbrs[2] = 8;  weights[2] = 11;
+            return 3;
+        case 6:
+            nbrs[0] = 1;  weights[0] = 15;
+            nbrs[1] = 3;  weights[1] = 5;
+            return 2;
+        case 7:
+            nbrs[0] = 5;  weights[0] = 11;
+            nbrs[1] = 10; weights[1] = 5;
+            nbrs[2] = 15; weights[2] = 11;
+            return 3;
+        case 8:
+            nbrs[0] = 5;  weights[0] = 11;
+            nbrs[1] = 11; weights[1] = 5;
+            nbrs[2] = 20; weights[2] = 11;
+            return 3;
+        case 9:
+            nbrs[0] = 11; weights[0] = 7;
+            nbrs[1] = 12; weights[1] = 5;
+            return 2;
+        case 10:
+            nbrs[0] = 7;  weights[0] = 5;
+            return 1;
+        case 11:
+            nbrs[0] = 8;  weights[0] = 5;
+            nbrs[1] = 9;  weights[1] = 7;
+            nbrs[2] = 19; weights[2] = 7;
+            return 3;
+        case 12:
+            nbrs[0] = 9;  weights[0] = 5;
+            return 1;
+        case 13:
+            nbrs[0] = 14; weights[0] = 5;
+            nbrs[1] = 30; weights[1] = 19;
+            return 2;
+        case 14:
+            nbrs[0] = 4;  weights[0] = 15;
+            nbrs[1] = 13; weights[1] = 5;
+            nbrs[2] = 15; weights[2] = 5;
+            return 3;
+        case 15:
+            nbrs[0] = 7;  weights[0] = 11;
+            nbrs[1] = 14; weights[1] = 5;
+            return 2;
+        case 16:
+            nbrs[0] = 17; weights[0] = 5;
+            nbrs[1] = 23; weights[1] = 7;
+            return 2;
+        case 17:
+            nbrs[0] = 16; weights[0] = 5;
+            return 1;
+        case 18:
+            nbrs[0] = 19; weights[0] = 5;
+            return 1;
+        case 19:
+            nbrs[0] = 11; weights[0] = 7;
+            nbrs[1] = 18; weights[1] = 5;
+            return 2;
+        case 20:
+            nbrs[0] = 8;  weights[0] = 11;
+            nbrs[1] = 21; weights[1] = 5;
+            nbrs[2] = 27; weights[2] = 11;
+            return 3;
+        case 21:
+            nbrs[0] = 20; weights[0] = 5;
+            return 1;
+        case 22:
+            nbrs[0] = 25; weights[0] = 5;
+            return 1;
+        case 23:
+            nbrs[0] = 16; weights[0] = 7;
+            nbrs[1] = 25; weights[1] = 7;
+            nbrs[2] = 26; weights[2] = 5;
+            return 3;
+        case 24:
+            nbrs[0] = 27; weights[0] = 5;
+            return 1;
+        case 25:
+            nbrs[0] = 22; weights[0] = 5;
+            nbrs[1] = 23; weights[1] = 7;
+            return 2;
+        case 26:
+            nbrs[0] = 23; weights[0] = 5;
+            nbrs[1] = 29; weights[1] = 11;
+            return 2;
+        case 27:
+            nbrs[0] = 20; weights[0] = 11;
+            nbrs[1] = 24; weights[1] = 5;
+            nbrs[2] = 29; weights[2] = 11;
+            return 3;
+        case 28:
+            nbrs[0] = 31; weights[0] = 5;
+            nbrs[1] = 32; weights[1] = 15;
+            return 2;
+        case 29:
+            nbrs[0] = 26; weights[0] = 11;
+            nbrs[1] = 27; weights[1] = 11;
+            nbrs[2] = 32; weights[2] = 5;
+            return 3;
+        case 30:
+            nbrs[0] = 13; weights[0] = 19;
+            nbrs[1] = 33; weights[1] = 5;
+            nbrs[2] = 35; weights[2] = 19;
+            return 3;
+        case 31:
+            nbrs[0] = 28; weights[0] = 5;
+            nbrs[1] = 34; weights[1] = 5;
+            nbrs[2] = 35; weights[2] = 19;
+            return 3;
+        case 32:
+            nbrs[0] = 28; weights[0] = 15;
+            nbrs[1] = 29; weights[1] = 5;
+            return 2;
+        case 33:
+            nbrs[0] = 30; weights[0] = 5;
+            return 1;
+        case 34:
+            nbrs[0] = 31; weights[0] = 5;
+            return 1;
+        case 35:
+            nbrs[0] = 30; weights[0] = 19;
+            nbrs[1] = 31; weights[1] = 19;
+            return 2;
+        case 36:
+            nbrs[0] = 1;  weights[0] = 100;
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+static uint64_t present_decrypt(uint64_t cipher, uint64_t key_hi64, uint16_t key_lo16) {
+    uint8_t sbox[16];
+    uint8_t inv_sbox[16];
+    sbox[0] = 0xC; sbox[1] = 0x5; sbox[2] = 0x6; sbox[3] = 0xB;
+    sbox[4] = 0x9; sbox[5] = 0x0; sbox[6] = 0xA; sbox[7] = 0xD;
+    sbox[8] = 0x3; sbox[9] = 0xE; sbox[10] = 0xF; sbox[11] = 0x8;
+    sbox[12] = 0x4; sbox[13] = 0x7; sbox[14] = 0x1; sbox[15] = 0x2;
+
+    for (uint8_t i = 0; i < 16; i++) {
+        inv_sbox[sbox[i]] = i;
+    }
+
+    uint64_t k_hi = key_hi64;
+    uint16_t k_lo = key_lo16;
+
+    for (uint8_t r = 1; r <= 31; r++) {
+        uint64_t old_hi = k_hi;
+        uint16_t old_lo = k_lo;
+        k_hi = (old_hi >> 19) | ((uint64_t)old_lo << 45) | (old_hi << 61);
+        k_lo = (uint16_t)(old_hi >> 3);
+        k_hi = (k_hi & 0x0FFFFFFFFFFFFFFFULL) | ((uint64_t)sbox[k_hi >> 60] << 60);
+        k_hi ^= (uint64_t)(r >> 1);
+        k_lo ^= (uint16_t)((r & 1) << 15);
+    }
+
+    uint64_t state = cipher ^ k_hi;
+
+    for (uint8_t r = 31; r >= 1; r--) {
+        k_hi ^= (uint64_t)(r >> 1);
+        k_lo ^= (uint16_t)((r & 1) << 15);
+        k_hi = (k_hi & 0x0FFFFFFFFFFFFFFFULL) | ((uint64_t)inv_sbox[k_hi >> 60] << 60);
+        uint64_t wrap19 = k_hi >> 45;
+        k_hi = (k_hi << 19) | ((uint64_t)k_lo << 3) | (wrap19 >> 16);
+        k_lo = (uint16_t)(wrap19 & 0xFFFF);
+
+        uint64_t inv_p = 0;
+        for (uint8_t i = 0; i < 64; i++) {
+            if ((state >> i) & 1ULL) {
+                uint8_t target = (i == 63) ? 63 : (((i & 0xF) << 2) | (i >> 4));
+                inv_p |= (1ULL << target);
+            }
+        }
+        state = inv_p;
+
+        uint64_t s = 0;
+        for (uint8_t n = 0; n < 16; n++) {
+            uint8_t nibble = (uint8_t)((state >> (n << 2)) & 0xF);
+            s |= ((uint64_t)inv_sbox[nibble]) << (n << 2);
+        }
+        state = s;
+
+        state ^= k_hi;
+    }
+
+    return state;
+}
 
 // ##############################################
 
@@ -269,9 +476,89 @@ int main(int argc, char const *argv[]) {
     // prefer declaring variables like this
     #ifdef __linux__
         uint16_t dist[40];
+        uint8_t parent[40];
     #else
         uint16_t *dist = (uint16_t *) 0x02000020;    // working memory starts at 0x02000020
+        uint8_t *parent = (uint8_t *) 0x02000070;
     #endif
+
+    if (is_encrypted) {
+        uint64_t cipher = ((uint64_t)ENCRYPTED_HI << 32) | ENCRYPTED_LO;
+        uint64_t plain = present_decrypt(cipher, ((uint64_t)PRESENT_KEY_HI << 32) | PRESENT_KEY_MID, PRESENT_KEY_LO);
+        uint8_t done_flag = (uint8_t)(plain >> 56);
+        message[0] = (uint8_t)(plain >> 48);
+        message[1] = (uint8_t)(plain >> 40);
+        message[2] = (uint8_t)(plain >> 32);
+        message[3] = (uint8_t)(plain >> 24);
+        message[4] = (uint8_t)(plain >> 16);
+        uint8_t next_pickup = (uint8_t)(plain >> 8);
+        uint8_t drop_node = (uint8_t)(plain & 0xFF);
+
+        end_point = drop_node;
+
+        if (done_flag == 0) {
+            IS_ENCRYPTED = 0;
+            CURRENT_NODE = drop_node;
+            NEXT_NODE = next_pickup;
+        }
+    } else {
+        end_point = NEXT_NODE;
+    }
+
+    if (start_point == end_point) {
+        path_planned[0] = start_point;
+        idx = 1;
+    } else {
+        for (uint8_t i = 1; i <= 36; i++) {
+            dist[i] = 0xFFFF;
+            parent[i] = 0;
+        }
+        dist[start_point] = 0;
+
+        uint64_t visited = 0;
+        for (uint8_t step = 0; step < 36; step++) {
+            uint16_t min_d = 0xFFFF;
+            uint8_t u = 0;
+            for (uint8_t i = 1; i <= 36; i++) {
+                if (!((visited >> i) & 1ULL) && dist[i] < min_d) {
+                    min_d = dist[i];
+                    u = i;
+                }
+            }
+            if (u == 0 || min_d == 0xFFFF) break;
+            visited |= (1ULL << u);
+            if (u == end_point) break;
+
+            uint8_t nbrs[4];
+            uint8_t weights[4];
+            uint8_t num_nbrs = get_neighbors(u, nbrs, weights);
+            for (uint8_t k = 0; k < num_nbrs; k++) {
+                uint8_t v = nbrs[k];
+                uint8_t w = weights[k];
+                if (!((visited >> v) & 1ULL)) {
+                    uint16_t new_d = dist[u] + w;
+                    if (new_d < dist[v]) {
+                        dist[v] = new_d;
+                        parent[v] = u;
+                    }
+                }
+            }
+        }
+
+        uint8_t temp_path[40];
+        uint8_t temp_idx = 0;
+        uint8_t curr = end_point;
+        while (curr != 0) {
+            temp_path[temp_idx++] = curr;
+            if (curr == start_point) break;
+            curr = parent[curr];
+        }
+
+        idx = 0;
+        while (temp_idx > 0) {
+            path_planned[idx++] = temp_path[--temp_idx];
+        }
+    }
 
     // ##############################################
 

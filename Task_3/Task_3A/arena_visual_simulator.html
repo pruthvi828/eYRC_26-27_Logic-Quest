@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logic Quest: Task 3A Arena Visual Simulator</title>
+<style>
+  :root {
+    --bg-dark: #0b0f19;
+    --card-bg: #141c2e;
+    --card-border: #1f2b45;
+    --accent-cyan: #00f0ff;
+    --accent-gold: #ffb800;
+    --accent-green: #00ff88;
+    --accent-red: #ff3366;
+    --text-primary: #e6edf3;
+    --text-muted: #8b9bb4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: linear-gradient(90deg, #101726 0%, #17243c 100%);
+    border-bottom: 1px solid var(--card-border);
+    padding: 16px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header h1 span { color: var(--accent-cyan); }
+  .badge {
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .container {
+    display: grid;
+    grid-template-columns: 380px 1fr 340px;
+    gap: 16px;
+    padding: 16px;
+    flex: 1;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 8px;
+  }
+  label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+  }
+  select, input, button {
+    width: 100%;
+    padding: 9px 12px;
+    background: #0d1424;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.2s;
+  }
+  select:focus, input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 8px rgba(0,240,255,0.25);
+  }
+  button.btn-primary {
+    background: linear-gradient(135deg, #0088cc 0%, #00f0ff 100%);
+    color: #05101f;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  button.btn-primary:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 0 14px rgba(0,240,255,0.4);
+  }
+  .visual-area {
+    position: relative;
+    background: #0d1424;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+  .terminal {
+    background: #070b12;
+    border: 1px solid #141f33;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: #4af626;
+    height: 100%;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.45;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    background: #0d1526;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+  .info-val {
+    font-weight: 600;
+    color: var(--accent-gold);
+    font-family: monospace;
+  }
+  .msg-banner {
+    background: linear-gradient(90deg, rgba(0,240,255,0.1) 0%, rgba(0,255,136,0.1) 100%);
+    border: 1px solid rgba(0,240,255,0.3);
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+  }
+  .msg-text {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--accent-cyan);
+    margin-top: 4px;
+    font-family: monospace;
+  }
+  .node-circle {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .node-circle:hover {
+    filter: drop-shadow(0 0 6px var(--accent-cyan));
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>Logic Quest</span> Arena Simulator</h1>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <span class="badge">Task 3A Interactive Runner</span>
+    <span class="badge" style="color: var(--accent-green); border-color: rgba(0,255,136,0.3); background: rgba(0,255,136,0.15)">Dijkstra + PRESENT-80</span>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Left Panel: Controls -->
+  <div class="card">
+    <h2>Control Panel</h2>
+    
+    <div>
+      <label>Preset Testbench Cases (test.sh)</label>
+      <select id="presetSelect" onchange="loadPreset()">
+        <option value="0">Case 1: N35 -> N7 (Plain Move)</option>
+        <option value="1">Case 2: N3 -> N36 (Wavy Line, Weight 100)</option>
+        <option value="2">Case 3: N14 -> N14 (In-place)</option>
+        <option value="3">Case 4: N7 -> E3399C2AAF0E5CA0 ("HELLO", drop 26)</option>
+        <option value="4">Case 5: N26 -> N12 (Plain Move)</option>
+        <option value="5">Case 6: N12 -> 21020660468109D7 ("GO", drop 33)</option>
+        <option value="6">Case 7: N22 -> D30E1799F911813A (Empty Msg, drop 22)</option>
+        <option value="7">Case 8: N22 -> D01C53F5BFD076BA ("BYE", drop 17, Done 1)</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Current Node (Where the Bot is)</label>
+      <input type="number" id="currentNode" min="1" max="36" value="35">
+    </div>
+
+    <div>
+      <label>Input Type</label>
+      <select id="isEncrypted" onchange="toggleEncrypted()">
+        <option value="0">Plain Node (is_encrypted = 0)</option>
+        <option value="1">PRESENT-80 Encrypted Block (is_encrypted = 1)</option>
+      </select>
+    </div>
+
+    <div id="plainNextBox">
+      <label>Target Node (1..36)</label>
+      <input type="number" id="plainNextNode" min="1" max="36" value="7">
+    </div>
+
+    <div id="encBlockBox" style="display: none;">
+      <label>16-Hex Encrypted Block</label>
+      <input type="text" id="encBlockVal" maxlength="16" value="E3399C2AAF0E5CA0" style="text-transform: uppercase;">
+    </div>
+
+    <button class="btn-primary" onclick="runSimulation()">Start Simulation</button>
+
+    <div class="msg-banner" id="decryptedMsgCard">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Decrypted Message</div>
+      <div class="msg-text" id="msgTextDisplay">NONE</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="info-row">
+        <span>Path Total Weight:</span>
+        <span class="info-val" id="totalWeightVal">0</span>
+      </div>
+      <div class="info-row">
+        <span>Nodes in Path:</span>
+        <span class="info-val" id="nodeCountVal">0</span>
+      </div>
+      <div class="info-row">
+        <span>Done Flag:</span>
+        <span class="info-val" id="doneFlagVal">-</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center Panel: Interactive Map -->
+  <div class="visual-area">
+    <svg id="arenaSvg" viewBox="0 0 1000 850">
+      <defs>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+        <radialGradient id="nodeGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#1e345b" />
+          <stop offset="100%" stop-color="#0e172a" />
+        </radialGradient>
+      </defs>
+      <!-- Edges Layer -->
+      <g id="edgesLayer"></g>
+      <!-- Active Path Layer -->
+      <g id="activePathLayer"></g>
+      <!-- Nodes Layer -->
+      <g id="nodesLayer"></g>
+      <!-- Bot Layer -->
+      <g id="botLayer">
+        <circle id="botMarker" cx="-100" cy="-100" r="16" fill="var(--accent-cyan)" filter="url(#glow)"></circle>
+        <circle id="botInner" cx="-100" cy="-100" r="8" fill="#ffffff"></circle>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Right Panel: Execution Output & State -->
+  <div class="card">
+    <h2>Program Output</h2>
+    <div class="terminal" id="termOutput">Waiting for simulation run...</div>
+    <div style="margin-top: 8px;">
+      <div class="info-row" style="margin-bottom: 6px;">
+        <span>Next CURRENT_NODE:</span>
+        <span class="info-val" id="nextCurrentVal">-</span>
+      </div>
+      <div class="info-row">
+        <span>Next NEXT_NODE:</span>
+        <span class="info-val" id="nextNextVal">-</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Graph definition with line weights
+const GRAPH = {
+  1: [[5,5],[4,15],[6,15],[36,100]],
+  2: [[4,5]],
+  3: [[6,5]],
+  4: [[1,15],[2,5],[14,15]],
+  5: [[1,5],[7,11],[8,11]],
+  6: [[1,15],[3,5]],
+  7: [[5,11],[10,5],[15,11]],
+  8: [[5,11],[11,5],[20,11]],
+  9: [[11,7],[12,5]],
+  10: [[7,5]],
+  11: [[8,5],[9,7],[19,7]],
+  12: [[9,5]],
+  13: [[14,5],[30,19]],
+  14: [[4,15],[13,5],[15,5]],
+  15: [[7,11],[14,5]],
+  16: [[17,5],[23,7]],
+  17: [[16,5]],
+  18: [[19,5]],
+  19: [[11,7],[18,5]],
+  20: [[8,11],[21,5],[27,11]],
+  21: [[20,5]],
+  22: [[25,5]],
+  23: [[16,7],[25,7],[26,5]],
+  24: [[27,5]],
+  25: [[22,5],[23,7]],
+  26: [[23,5],[29,11]],
+  27: [[20,11],[24,5],[29,11]],
+  28: [[31,5],[32,15]],
+  29: [[26,11],[27,11],[32,5]],
+  30: [[13,19],[33,5],[35,19]],
+  31: [[28,5],[34,5],[35,19]],
+  32: [[28,15],[29,5]],
+  33: [[30,5]],
+  34: [[31,5]],
+  35: [[30,19],[31,19]],
+  36: [[1,100]]
+};
+
+// Node 2D Positions mapped nicely for the SVG viewBox
+const POS = {
+  35: [500, 780], // Start box
+  30: [350, 710], 31: [650, 710],
+  33: [250, 750], 34: [750, 750],
+  13: [350, 620], 28: [650, 620],
+  14: [350, 530], 32: [650, 530],
+  15: [420, 530], 29: [580, 530],
+  4:  [270, 530], 26: [580, 440],
+  2:  [180, 530], 23: [670, 440],
+  7:  [420, 440], 25: [760, 440],
+  10: [340, 440], 22: [850, 440],
+  5:  [420, 350], 16: [670, 350],
+  8:  [500, 350], 17: [760, 350],
+  20: [580, 350], 27: [580, 260],
+  21: [650, 350], 24: [660, 260],
+  11: [500, 260], 19: [500, 180],
+  9:  [420, 260], 18: [580, 180],
+  12: [340, 260], 1:  [350, 180],
+  6:  [260, 180], 3:  [180, 180],
+  36: [350, 70]   // Far end of wavy line
+};
+
+// PRESENT-80 SBox & InvSbox
+const SBOX = [0xC, 0x5, 0x6, 0xB, 0x9, 0x0, 0xA, 0xD,
+              0x3, 0xE, 0xF, 0x8, 0x4, 0x7, 0x1, 0x2];
+const INV_SBOX = new Array(16);
+for (let i = 0; i < 16; i++) INV_SBOX[SBOX[i]] = i;
+
+function presentDecrypt(cipherHex) {
+  let cipher = BigInt("0x" + cipherHex);
+  let k_hi = 0xA1B2C3D4E5F60718n;
+  let k_lo = 0x293An;
+
+  // Forward key schedule to K32
+  for (let r = 1; r <= 31; r++) {
+    let old_hi = k_hi;
+    let old_lo = k_lo;
+    k_hi = ((old_hi >> 19n) | (old_lo << 45n) | (old_hi << 61n)) & 0xFFFFFFFFFFFFFFFFn;
+    k_lo = (old_hi >> 3n) & 0xFFFFn;
+    let topNib = Number(k_hi >> 60n);
+    k_hi = (k_hi & 0x0FFFFFFFFFFFFFFFn) | (BigInt(SBOX[topNib]) << 60n);
+    k_hi ^= BigInt(r >> 1);
+    k_lo ^= BigInt((r & 1) << 15);
+  }
+
+  let state = cipher ^ k_hi;
+
+  // Reverse rounds 31 down to 1
+  for (let r = 31; r >= 1; r--) {
+    k_hi ^= BigInt(r >> 1);
+    k_lo ^= BigInt((r & 1) << 15);
+    let topNib = Number(k_hi >> 60n);
+    k_hi = (k_hi & 0x0FFFFFFFFFFFFFFFn) | (BigInt(INV_SBOX[topNib]) << 60n);
+    let wrap19 = k_hi >> 45n;
+    k_hi = ((k_hi << 19n) | (k_lo << 3n) | (wrap19 >> 16n)) & 0xFFFFFFFFFFFFFFFFn;
+    k_lo = wrap19 & 0xFFFFn;
+
+    // Inverse permutation
+    let inv_p = 0n;
+    for (let i = 0; i < 64; i++) {
+      if ((state >> BigInt(i)) & 1n) {
+        let target = (i === 63) ? 63 : (((i & 0xF) << 2) | (i >> 4));
+        inv_p |= (1n << BigInt(target));
+      }
+    }
+    state = inv_p;
+
+    // Inverse S-Box
+    let s = 0n;
+    for (let n = 0; n < 16; n++) {
+      let nibble = Number((state >> BigInt(4 * n)) & 0xFn);
+      s |= BigInt(INV_SBOX[nibble]) << BigInt(4 * n);
+    }
+    state = s;
+    state ^= k_hi;
+  }
+  return state;
+}
+
+function dijkstra(start, end) {
+  if (start === end) return [start];
+  const dist = {};
+  const parent = {};
+  const visited = new Set();
+  for (let i = 1; i <= 36; i++) {
+    dist[i] = Infinity;
+    parent[i] = null;
+  }
+  dist[start] = 0;
+
+  while (visited.size < 36) {
+    let u = null;
+    let minD = Infinity;
+    for (let i = 1; i <= 36; i++) {
+      if (!visited.has(i) && dist[i] < minD) {
+        minD = dist[i];
+        u = i;
+      }
+    }
+    if (u === null || minD === Infinity) break;
+    visited.add(u);
+    if (u === end) break;
+
+    for (const [v, w] of GRAPH[u]) {
+      if (!visited.has(v)) {
+        const alt = dist[u] + w;
+        if (alt < dist[v]) {
+          dist[v] = alt;
+          parent[v] = u;
+        }
+      }
+    }
+  }
+
+  const path = [];
+  let curr = end;
+  while (curr !== null) {
+    path.push(curr);
+    if (curr === start) break;
+    curr = parent[curr];
+  }
+  return path.reverse();
+}
+
+// Draw arena map
+function renderMap() {
+  const edgesG = document.getElementById("edgesLayer");
+  const nodesG = document.getElementById("nodesLayer");
+  edgesG.innerHTML = "";
+  nodesG.innerHTML = "";
+
+  const renderedEdges = new Set();
+  for (const [uStr, nbrs] of Object.entries(GRAPH)) {
+    const u = Number(uStr);
+    for (const [v, w] of nbrs) {
+      const edgeKey = u < v ? `${u}-${v}` : `${v}-${u}`;
+      if (!renderedEdges.has(edgeKey)) {
+        renderedEdges.add(edgeKey);
+        const [x1, y1] = POS[u];
+        const [x2, y2] = POS[v];
+        
+        // Edge line
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+        line.setAttribute("stroke", w === 100 ? "#ff5588" : "#223555");
+        line.setAttribute("stroke-width", w === 100 ? "3" : "2");
+        line.setAttribute("id", `edge-${edgeKey}`);
+        edgesG.appendChild(line);
+
+        // Edge weight text
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        txt.setAttribute("x", midX); txt.setAttribute("y", midY - 3);
+        txt.setAttribute("fill", w === 100 ? "#ff5588" : "#4a628a");
+        txt.setAttribute("font-size", "11");
+        txt.setAttribute("font-family", "monospace");
+        txt.setAttribute("text-anchor", "middle");
+        txt.textContent = w;
+        edgesG.appendChild(txt);
+      }
+    }
+  }
+
+  // Draw Nodes
+  for (let i = 1; i <= 36; i++) {
+    const [x, y] = POS[i];
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "node-circle");
+    g.onclick = () => selectNode(i);
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", x); circle.setAttribute("cy", y);
+    circle.setAttribute("r", i === 35 ? "20" : "15");
+    circle.setAttribute("fill", i === 35 ? "#1a4030" : "url(#nodeGrad)");
+    circle.setAttribute("stroke", i === 35 ? "#00ff88" : "#3b5580");
+    circle.setAttribute("stroke-width", "2");
+    circle.setAttribute("id", `node-${i}`);
+    g.appendChild(circle);
+
+    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    txt.setAttribute("x", x); txt.setAttribute("y", y + 4);
+    txt.setAttribute("fill", "#e6edf3");
+    txt.setAttribute("font-size", i === 35 ? "11" : "12");
+    txt.setAttribute("font-weight", "bold");
+    txt.setAttribute("font-family", "sans-serif");
+    txt.setAttribute("text-anchor", "middle");
+    txt.textContent = i;
+    g.appendChild(txt);
+
+    nodesG.appendChild(g);
+  }
+}
+
+function selectNode(id) {
+  document.getElementById("currentNode").value = id;
+}
+
+const PRESETS = [
+  { curr: 35, enc: 0, next: "7" },
+  { curr: 3, enc: 0, next: "36" },
+  { curr: 14, enc: 0, next: "14" },
+  { curr: 7, enc: 1, next: "E3399C2AAF0E5CA0" },
+  { curr: 26, enc: 0, next: "12" },
+  { curr: 12, enc: 1, next: "21020660468109D7" },
+  { curr: 22, enc: 1, next: "D30E1799F911813A" },
+  { curr: 22, enc: 1, next: "D01C53F5BFD076BA" }
+];
+
+function loadPreset() {
+  const p = PRESETS[Number(document.getElementById("presetSelect").value)];
+  document.getElementById("currentNode").value = p.curr;
+  document.getElementById("isEncrypted").value = p.enc;
+  toggleEncrypted();
+  if (p.enc === 1) {
+    document.getElementById("encBlockVal").value = p.next;
+  } else {
+    document.getElementById("plainNextNode").value = p.next;
+  }
+  runSimulation();
+}
+
+function toggleEncrypted() {
+  const isEnc = document.getElementById("isEncrypted").value === "1";
+  document.getElementById("plainNextBox").style.display = isEnc ? "none" : "block";
+  document.getElementById("encBlockBox").style.display = isEnc ? "block" : "none";
+}
+
+let animTimeout = null;
+
+function runSimulation() {
+  if (animTimeout) clearTimeout(animTimeout);
+
+  const curr = Number(document.getElementById("currentNode").value);
+  const isEnc = document.getElementById("isEncrypted").value === "1";
+  const term = document.getElementById("termOutput");
+  term.textContent = "";
+
+  let target = 0;
+  let doneFlag = null;
+  let msgStr = "";
+  let nextPickup = null;
+
+  if (isEnc) {
+    const cipherHex = document.getElementById("encBlockVal").value.trim().toUpperCase();
+    const plain = presentDecrypt(cipherHex);
+    doneFlag = Number((plain >> 56n) & 0xFFn);
+    
+    // ASCII Message bytes 1..5
+    const msgBytes = [];
+    for (let i = 0; i < 5; i++) {
+      const b = Number((plain >> BigInt(48 - 8 * i)) & 0xFFn);
+      if (b !== 0) msgBytes.push(String.fromCharCode(b));
+    }
+    msgStr = msgBytes.join("");
+    nextPickup = Number((plain >> 8n) & 0xFFn);
+    target = Number(plain & 0xFFn);
+
+    document.getElementById("msgTextDisplay").textContent = msgStr || "[EMPTY]";
+    document.getElementById("doneFlagVal").textContent = doneFlag;
+    term.textContent += `Message : ${msgStr}\n`;
+  } else {
+    target = Number(document.getElementById("plainNextNode").value);
+    document.getElementById("msgTextDisplay").textContent = "NONE (PLAIN MOVE)";
+    document.getElementById("doneFlagVal").textContent = "-";
+  }
+
+  const path = dijkstra(curr, target);
+  for (const n of path) {
+    term.textContent += `${n}\n`;
+  }
+
+  // Calculate total weight
+  let totalWeight = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const u = path[i];
+    const v = path[i+1];
+    const edge = GRAPH[u].find(e => e[0] === v);
+    if (edge) totalWeight += edge[1];
+  }
+  document.getElementById("totalWeightVal").textContent = totalWeight;
+  document.getElementById("nodeCountVal").textContent = path.length;
+
+  if (isEnc) {
+    if (doneFlag === 0) {
+      term.textContent += `Next current_node : ${target}\n`;
+      term.textContent += `Next next_node : ${nextPickup}\n`;
+      document.getElementById("nextCurrentVal").textContent = target;
+      document.getElementById("nextNextVal").textContent = nextPickup;
+    } else {
+      term.textContent += `Done\n`;
+      document.getElementById("nextCurrentVal").textContent = "DONE";
+      document.getElementById("nextNextVal").textContent = "DONE";
+    }
+  } else {
+    document.getElementById("nextCurrentVal").textContent = target;
+    document.getElementById("nextNextVal").textContent = "-";
+  }
+
+  animatePath(path);
+}
+
+function animatePath(path) {
+  const activeG = document.getElementById("activePathLayer");
+  activeG.innerHTML = "";
+
+  // Reset all node colors
+  for (let i = 1; i <= 36; i++) {
+    const el = document.getElementById(`node-${i}`);
+    if (el) {
+      el.setAttribute("fill", i === 35 ? "#1a4030" : "url(#nodeGrad)");
+      el.setAttribute("stroke", i === 35 ? "#00ff88" : "#3b5580");
+    }
+  }
+
+  // Highlight active edges
+  for (let i = 0; i < path.length - 1; i++) {
+    const u = path[i];
+    const v = path[i+1];
+    const [x1, y1] = POS[u];
+    const [x2, y2] = POS[v];
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+    line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+    line.setAttribute("stroke", "var(--accent-cyan)");
+    line.setAttribute("stroke-width", "5");
+    line.setAttribute("filter", "url(#glow)");
+    activeG.appendChild(line);
+  }
+
+  // Animate Bot along nodes
+  let idx = 0;
+  function stepBot() {
+    if (idx >= path.length) return;
+    const n = path[idx];
+    const [x, y] = POS[n];
+
+    const botMarker = document.getElementById("botMarker");
+    const botInner = document.getElementById("botInner");
+    botMarker.setAttribute("cx", x); botMarker.setAttribute("cy", y);
+    botInner.setAttribute("cx", x); botInner.setAttribute("cy", y);
+
+    const nodeEl = document.getElementById(`node-${n}`);
+    if (nodeEl) {
+      nodeEl.setAttribute("fill", "rgba(0, 240, 255, 0.4)");
+      nodeEl.setAttribute("stroke", "var(--accent-cyan)");
+    }
+
+    idx++;
+    if (idx < path.length) {
+      animTimeout = setTimeout(stepBot, 350);
+    }
+  }
+  stepBot();
+}
+
+window.onload = () => {
+  renderMap();
+  runSimulation();
+};
+</script>
+
+</body>
+</html>
+
